@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <!--Advertisements-->
+    <category label="30075">
+        <setting id="username" type="text" label="30070" default="true" />
+    </category>    
+</settings>
