@@ -6,6 +6,7 @@ import sys, urllib
 from resources.lib import config, plugin
 from BeautifulSoup import BeautifulStoneSoup
 from resources.lib.plugin import PluginFactory
+import simplejson
 
 pluginName = sys.modules['__main__'].__plugin__
 
@@ -13,13 +14,18 @@ plugin = PluginFactory.factory()
 
 def loadXml(url):
     """Fetch and parse XML from the given URL"""
+    return getXml(loadUrl(url))
+
+def loadUrl(url):
+    """Load content from url"""
     request = urllib2.urlopen(url)
-    raw_xml = request.read()
-    try:
-        return BeautifulStoneSoup(raw_xml)
-    except Exception, error:
-        print '[%s]' % pluginName, error.args
-        raise Exception('Failed to fetch XML')
+    return request.read()
+
+def getJson(json):
+    return simplejson.loads(json)
+
+def getXml(xml):
+    return BeautifulStoneSoup(xml)
 
 def buildLink(path_items = (), query_items = ()):
     path_items = path_items or list(plugin.pathItems)

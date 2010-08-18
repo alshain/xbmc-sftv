@@ -21,7 +21,7 @@ class Main(object):
         self.root()
 
     def root(self):
-        media.Directory().createFolder('News', 'news').createFolder('Wall', 'wall').display()
+        media.Directory().createFolder('Wall', 'wall').createFolder('News', 'news').display()
 
 
     def wall(self):

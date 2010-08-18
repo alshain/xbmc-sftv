@@ -4,6 +4,8 @@ import traceback
 from resources.lib import util, config
 from resources.lib.server import factory as server_factory
 from resources.lib.util import SfTvClass
+from BeautifulSoup import BeautifulStoneSoup
+from resources.lib.media import VideoFactory, Directory
 class VideoWall(SfTvClass):
     '''
     Interface to the videowall.
@@ -12,26 +14,30 @@ class VideoWall(SfTvClass):
         '''
         Constructor
         '''
-        server = server_factory()
-        xml = server.wall()
-
-        super(SfTvClass, self).__init__()
+        super(VideoWall, self).__init__()
+        xml = self.getWallXml()
         sortmethods = (xbmcplugin.SORT_METHOD_LABEL, xbmcplugin.SORT_METHOD_SIZE, xbmcplugin.SORT_METHOD_DATE,
                                  xbmcplugin.SORT_METHOD_VIDEO_RUNTIME, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
         for sortmethod in sortmethods:
-            print self.plugin.handle, sortmethod
-            xbmcplugin.addSortMethod(handle = self.plugin.handle, sortMethod = sortmethod)
-        xbmcplugin.setContent(self.plugin.handle, 'movies')
+            xbmcplugin.addSortMethod(handle = self._plugin.handle, sortMethod = sortmethod)
+        xbmcplugin.setContent(self._plugin.handle, 'movies')
+        dir = Directory()
         try:
-            for segment in xml.videowall:
-                self.parseSegment(segment)
+            for segment in xml.findAll('segment'):
+                id, info = self.parseSegment(segment)
+                video, url = VideoFactory.fromSegmentId(id, info)
+                dir.addFile(video, url)
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
             print 'ERRORERRORERROR', error, traceback.print_stack(), traceback.print_tb(exc_traceback)
             pass
-        xbmcplugin.endOfDirectory(handle = self.plugin.handle, updateListing = True)
+        dir.display()
+    def getWallXml(self):
+        server = server_factory()
+        return server.wall()
 
     def parseSegment(self, segment):
+        self._log('Processing segment.')
         id = None
         title = None
         description = None
@@ -45,7 +51,7 @@ class VideoWall(SfTvClass):
                 title = element.string
             elif element.name == 'image':
                 image = element.string
-        Video(id, title, id, image, description).add()
+        return (id, {'label' : title, 'title': title, 'thumbnailImage': image, 'label2' : description, 'plot' : description})
 
     def loadXml(self):
         return util.loadXml(config.wallXml)
