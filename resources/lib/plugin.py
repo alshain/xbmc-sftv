@@ -7,10 +7,11 @@ handle = int(handle)
 class Plugin(object):
     def __init__(self):
         self.handle = handle
-        splitted = path.split('/')
+        splitted = path.rstrip('/').split('/')
         # ['plugin:', '', 'plugin.video.sf.tv', '']
         self.name = splitted[2]
-        self.baseUrl = splitted[0] + '//' + splitted[2] + '/'
+        self.basePath = splitted[0] + '//' + splitted[2]
+        self.log(splitted, 'plugin')
         self.pathItems = splitted[3:]
         self.queryItems = {}
         if query:
@@ -31,6 +32,9 @@ class Plugin(object):
     def log(self, msg, module = 'plugin'):
         msg = unicode(msg).encode('utf-8')
         print '%s:: [%s] %s' % (self.name, module, msg)
+
+    def clearPath(self):
+        self.pathItems = []
 
 class PluginFactory(object):
     plugin = None

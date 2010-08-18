@@ -11,11 +11,6 @@ class VideoFactory(SfTvClass):
     def bySegment(self, segment_id):
         xml = util.loadXml(config.informationBySegment % segment_id)
 
-class Folder(SfTvClass):
-    def __init__(self, name, path):
-        super(Folder, self).__init__()
-        self.item.path = util.buildLink(path, {'url' : path})
-
 class Factory(object):
     @classmethod
     def video(cls, info = None):
@@ -23,16 +18,17 @@ class Factory(object):
 
     @classmethod
     def folder(cls, info = None):
-        return Factory.item(info)
+        return Factory.item(kwargs = info, info = info)
 
     @classmethod
     def item(cls, kwargs = None, info = None, properties = None, type = 'video'):
         kwargs = kwargs or {'label' : '_undefined'}
         item = xbmcgui.ListItem(**Factory._filterItemKwargs(kwargs))
+        print 'Label', item.getProperty('label')
         if info:
             item.setInfo(type, info)
         if properties:
-            for key, value in info.iteritems():
+            for key, value in properties.iteritems():
                 item.setProperty(key, value)
         return item
 
@@ -50,35 +46,49 @@ class Directory(SfTvClass):
         super(Directory, self).__init__()
         self._dir = []
 
-    def addFile(self, item, url):
-        self.addItem(item, url, False)
+    def addFile(self, item, path):
+        self.addItem(item, path, False)
         return self
 
-    def addFolder(self, item, url):
-        self.addItem(item, url, True)
+    def addFolder(self, item, path):
+        self.addItem(item, path, True)
         return self
 
     def createVideo(self, info):
-        self.addFile(Factory.video(info), info['url'])
+        self.addFile(Factory.video(info), info['path'])
         return self
 
-    def createFolder(self, name, url, info = None):
+    def createFolder(self, name, path, info = None, is_plugin_subfolder = True):
+        """Create new folder in directory list
+        
+        Create and add a folder to the current directory and assume that it is 
+        a plugin of the current folder
+        
+        """
+        if is_plugin_subfolder:
+            path = util.currentPath(path)
         info = info or {}
-        info.update({'label' : name, 'url' : url})
-        self.addFolder(Factory.folder(info), info['url'])
+        info.update({'label' : name})
+        self.addFolder(Factory.folder(info), path)
         return self
 
-    def addItem(self, item, url, is_folder = False):
-        self._dir.append((item, url, is_folder))
+    def addItem(self, item, path, is_folder = False):
+        """Add an item to the current directory"""
+        self._dir.append((item, path, is_folder))
         return self
 
     def display(self):
-        for item, url, is_folder in self._dir:
-            self._displayItem(item, url, is_folder)
+        """Send all items to XBMC and display it"""
+        for args in self._dir:
+            self._displayItem(*args)
         xbmcplugin.endOfDirectory(self._plugin.handle, cacheToDisc = False)
         return self
 
-    def _displayItem(self, item, url, is_folder):
-        self._log('Displaying item %s' % url)
+    def _displayItem(self, item, path, is_folder):
+        """Register a single item with XBMC"""
+        if not item.getProperty('url'):
+            self._log('No url set')
+        else:
+            self._log('Displaying item %s' % path)
         print item
-        xbmcplugin.addDirectoryItem(handle = self._plugin.handle, url = url, listitem = item, isFolder = is_folder)
+        xbmcplugin.addDirectoryItem(self._plugin.handle, path, item, isFolder = is_folder)

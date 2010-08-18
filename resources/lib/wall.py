@@ -2,18 +2,19 @@ import sys
 import xbmcplugin
 import traceback
 from resources.lib import util, config
-from resources.lib.plugin import PluginFactory
+from resources.lib.server import factory as server_factory
 from resources.lib.util import SfTvClass
 class VideoWall(SfTvClass):
     '''
     Interface to the videowall.
     '''
-
-
     def __init__(self):
         '''
         Constructor
         '''
+        server = server_factory()
+        xml = server.wall()
+
         super(SfTvClass, self).__init__()
         sortmethods = (xbmcplugin.SORT_METHOD_LABEL, xbmcplugin.SORT_METHOD_SIZE, xbmcplugin.SORT_METHOD_DATE,
                                  xbmcplugin.SORT_METHOD_VIDEO_RUNTIME, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
@@ -21,7 +22,6 @@ class VideoWall(SfTvClass):
             print self.plugin.handle, sortmethod
             xbmcplugin.addSortMethod(handle = self.plugin.handle, sortMethod = sortmethod)
         xbmcplugin.setContent(self.plugin.handle, 'movies')
-        xml = self.loadXml()
         try:
             for segment in xml.videowall:
                 self.parseSegment(segment)
