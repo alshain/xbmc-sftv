@@ -1,10 +1,10 @@
 import sys
 import os
-from resources.lib import util, config
-from resources.lib.plugin import PluginFactory
+from resources.sftv import util, config
+from resources.sftv.plugin import PluginFactory
 from BeautifulSoup import BeautifulStoneSoup
 import simplejson
-from resources.lib.parser import parse_video_information, parse_wall
+from resources.sftv.parser import parse_video_information, parse_wall
 class Actual(object):
     """Provide an interface to the world, namely sf.tv"""
     identCache = {}

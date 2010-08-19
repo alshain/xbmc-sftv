@@ -13,7 +13,7 @@ __version__ = "0.1"
 print "[PLUGIN] '%s: version %s' initialized!" % (__plugin__, __version__)
 
 if __name__ == "__main__":
-    import resources.lib.sftv as sftv
+    import resources.sftv.sftv as sftv
     if not sys.argv[2]:
         sftv.Main()
     elif sys.argv[2].startswith('?addToFavorites'):

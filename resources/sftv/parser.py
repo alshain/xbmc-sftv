@@ -1,4 +1,4 @@
-from resources.lib.util import getJson, getXml
+from resources.sftv.util import getJson, getXml
 def parse_video_information(raw):
     raw = raw.splitlines()[1]
     return getJson(raw)

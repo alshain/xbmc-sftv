@@ -1,11 +1,11 @@
 import sys
 import xbmcplugin
 import traceback
-from resources.lib import util, config
-from resources.lib.server import factory as server_factory
-from resources.lib.util import SfTvClass
+from resources.sftv import util, config
+from resources.sftv.server import factory as server_factory
+from resources.sftv.util import SfTvClass
 from BeautifulSoup import BeautifulStoneSoup
-from resources.lib.media import VideoFactory, Directory
+from resources.sftv.media import VideoFactory, Directory
 class VideoWall(SfTvClass):
     '''
     Interface to the videowall.

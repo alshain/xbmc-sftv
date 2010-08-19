@@ -1,8 +1,8 @@
 import xbmcplugin, xbmcgui
-from resources.lib import plugin, util, config
-from resources.lib.server import factory as server_factory
+from resources.sftv import plugin, util, config
+from resources.sftv.server import factory as server_factory
 import urllib
-from resources.lib.util import SfTvClass
+from resources.sftv.util import SfTvClass
 import re
 
 class VideoFactory(SfTvClass):

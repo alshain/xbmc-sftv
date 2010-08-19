@@ -3,9 +3,9 @@ import cookielib
 import os.path
 import re
 import sys, urllib
-from resources.lib import config, plugin
+from resources.sftv import config, plugin
 from BeautifulSoup import BeautifulStoneSoup
-from resources.lib.plugin import PluginFactory
+from resources.sftv.plugin import PluginFactory
 import simplejson
 
 pluginName = sys.modules['__main__'].__plugin__

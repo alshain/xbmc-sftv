@@ -1,7 +1,7 @@
 import sys, os, urllib
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
-from resources.lib import media, wall
-from resources.lib import plugin
+from resources.sftv import media, wall
+from resources.sftv import plugin
 
 
 __settings__ = xbmcaddon.Addon(id = 'plugin.video.sf.tv')
