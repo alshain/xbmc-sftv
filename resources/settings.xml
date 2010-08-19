@@ -12,6 +12,6 @@
         
     </category>
 	<category label="30210">
-		
+		<setting id="mockRemote" type="bool" label="30211" default="false" />
 	</category>
 </settings>
