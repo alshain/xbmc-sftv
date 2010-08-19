@@ -23,16 +23,33 @@ class Actual(object):
         ident_check_url = config.identUrl % vhost
         ident = util.loadXml(ident_check_url)
         server = ident.ip.string
-        video = fakeUrl.split('mp4:')[1]
+        print fakeUrl
+        video = fakeUrl.split('ondemand/')[1]
+        if video.endswith('.flv'):
+            video = video[:-4]
         application = splitted[1]
         params = dict(server = server, app = application, video = video, vhost = vhost)
         print params
         url = config.streamUrl % params
         return url
 
+    def newest(self):
+        return util.loadJson(config.newestUrl)
+
+    def mostViewed(self):
+        return util.loadJson(config.mostViewedUrl)
+
+    def bestRated(self):
+        return util.loadJson(config.bestRatedUrl)
+
+    def dying(self):
+        return util.loadJson(config.dyingUrl)
 
     def wall(self):
         return util.loadXml(config.wallXml)
+
+    def channelsXml(self):
+        return util.loadXml(config.channelsXml)
 
 class Virtual(object):
     """Emulate Actual's actual responses with predefined content"""
@@ -58,6 +75,29 @@ class Virtual(object):
         f = open(os.path.join(os.getcwd(), "resources", "data", 'wall.xml'))
         return parse_wall(f.read())
 
+    def newest(self):
+        f = open(os.path.join(os.getcwd(), "resources", "data", 'newest.json'))
+        return util.getJson(f.read())
+
+    def mostViewed(self):
+        f = open(os.path.join(os.getcwd(), "resources", "data", 'newest.json'))
+        return util.getJson(f.read())
+
+    def bestRated(self):
+        f = open(os.path.join(os.getcwd(), "resources", "data", 'bestrated.json'))
+        return util.getJson(f.read())
+
+    def dying(self):
+        f = open(os.path.join(os.getcwd(), "resources", "data", 'dying.json'))
+        return util.getJson(f.read())
+
+    def channelsXml(self):
+        f = open(os.path.join(os.getcwd(), "resources", "data", 'channels.xml'))
+        return util.getJson(f.read())
+
 def factory():
     """Create or return a virtual or actual server"""
-    return Actual()
+    if util.getSetting('mockRemote') == 'true':
+        return Virtual()
+    else:
+        return Actual()
