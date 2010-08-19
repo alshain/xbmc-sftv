@@ -17,8 +17,6 @@ class VideoFactory(SfTvClass):
     def fromVideoInfo(cls, json, info = None):
         """Return tuple(video item, url)"""
         server = server_factory()
-        if not info:
-            info = {'label' : json['description_title'], 'title' : json['description_title']}
         date = ('1', '1', '1970')
         if 'time_published' in json:
             time_published = json['time_published']
@@ -33,7 +31,20 @@ class VideoFactory(SfTvClass):
                 selected_stream = key
         stream = json['streaming_urls'][selected_stream]
         url = server.getStream(stream['url'])
-        return (Factory.video(info), url)
+
+        if 'title' not in info:
+            info['title'] = json['description_title']
+        if 'plot' not in info:
+            info['plot'] = json['description_title']
+
+        #defaults
+        final_info = info.copy()
+        final_info['label2'] = util.getSetting('label2Format') % info;
+        final_info['label'] = util.getSetting('titleFormat') % info;
+        final_info['title'] = util.getSetting('titleFormat') % info;
+        final_info['plot'] = util.getSetting('plotFormat') % info;
+
+        return (Factory.video(final_info), url)
 
     @classmethod
     def convertDate(cls, date):
@@ -41,9 +52,7 @@ class VideoFactory(SfTvClass):
         #%d.%m.%Y / 01.01.2009
         #2010-08-15 19:29:00
         m = re.match(r"([\d]{4})-(\d\d)-(\d\d)", date)
-        return (m.group(2), m.group(1), m.group(0))
-
-
+        return (m.group(3), m.group(2), m.group(1))
 
 class Factory(object):
     @classmethod
@@ -57,10 +66,13 @@ class Factory(object):
     @classmethod
     def item(cls, kwargs = None, info = None, properties = None, type = 'video'):
         kwargs = kwargs or {'label' : '_undefined'}
+        print unicode(kwargs).encode('utf-8')
+        print unicode(Factory._filterItemKwargs(kwargs)).encode('utf-8')
         item = xbmcgui.ListItem(**Factory._filterItemKwargs(kwargs))
-        print 'Label', item.getProperty('label')
-        if info:
-            item.setInfo(type, info)
+        filtered_info = Factory._filterInfo('video', info)
+        if filtered_info:
+            item.setInfo(type, filtered_info)
+        print 'afterInfo'
         if properties:
             for key, value in properties.iteritems():
                 item.setProperty(key, value)
@@ -68,12 +80,19 @@ class Factory(object):
 
     @classmethod
     def _filterItemKwargs(cls, kwargs):
-        allowed = ('label', 'label2', 'thumbnailImage', 'iconImage', 'path')
+        allowed = ['label', 'label2', 'thumbnailImage', 'iconImage', 'path']
         filtered = {}
         for key in allowed:
             if key in kwargs:
                 filtered[key] = kwargs[key]
         return filtered
+
+    @classmethod
+    def _filterInfo(cls, category, info):
+        if category == 'video':
+            return util.filterDictionary(info, config.validInfoKeys)
+        else:
+            raise ValueError('Undefined category: %s' % category)
 
 class Directory(SfTvClass):
     def __init__(self):
@@ -120,9 +139,4 @@ class Directory(SfTvClass):
 
     def _displayItem(self, item, path, is_folder):
         """Register a single item with XBMC"""
-        if not item.getProperty('url'):
-            self._log('No url set')
-        else:
-            self._log('Displaying item %s' % path)
-        print item
         xbmcplugin.addDirectoryItem(self._plugin.handle, path, item, isFolder = is_folder)

@@ -4,7 +4,6 @@ import traceback
 from resources.sftv import util, config
 from resources.sftv.server import factory as server_factory
 from resources.sftv.util import SfTvClass
-from BeautifulSoup import BeautifulStoneSoup
 from resources.sftv.media import VideoFactory, Directory
 class VideoWall(SfTvClass):
     '''
@@ -29,7 +28,7 @@ class VideoWall(SfTvClass):
                 dir.addFile(video, url)
         except Exception, error:
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            print 'ERRORERRORERROR', error, traceback.print_stack(), traceback.print_tb(exc_traceback)
+            print 'ERROR', error, exc_type, traceback.print_stack(), traceback.print_tb(exc_traceback)
             pass
         dir.display()
     def getWallXml(self):
@@ -51,7 +50,7 @@ class VideoWall(SfTvClass):
                 title = element.string
             elif element.name == 'image':
                 image = element.string
-        return (id, {'label' : title, 'title': title, 'thumbnailImage': image, 'label2' : description, 'plot' : description})
+        return (id, {'title': title, 'program': title, 'thumbnailImage': image, 'desc' : description})
 
     def loadXml(self):
         return util.loadXml(config.wallXml)

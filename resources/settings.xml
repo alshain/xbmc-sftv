@@ -1,7 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <!--Advertisements-->
-    <category label="30075">
-        <setting id="username" type="text" label="30070" default="true" />
-    </category>    
+    <category label="30150">
+        <setting id="titleFormat" type="text" label="30151" default="%(title)s" />
+        <setting id="label2Format" type="text" label="30152" default="%(date)s" />
+        <setting id="plotFormat" type="text" label="30153" default="%(desc)s" />
+    </category>
+    <category label="30170">
+        
+    </category>
+    <category label="30190">
+        
+    </category>
+	<category label="30210">
+		
+	</category>
 </settings>

@@ -7,6 +7,7 @@ from resources.sftv import config, plugin
 from BeautifulSoup import BeautifulStoneSoup
 from resources.sftv.plugin import PluginFactory
 import simplejson
+import xbmcplugin
 
 pluginName = sys.modules['__main__'].__plugin__
 
@@ -53,6 +54,20 @@ def currentPath(subfolders = None, query_items = (), clear_query = False):
     merged_query.update(query_items)
     return buildLink(subfolders, merged_query)
 
+def debug():
+    #http://wiki.xbmc.org/index.php?title=HOW-TO_debug_Python_Scripts_with_Eclipse
+    # Make pydev debugger works for auto reload.
+    # Note pydevd module need to be copied in XBMC\system\python\Lib\pysrc
+    print sys.path
+    try:
+        from pysrc import pydevd
+    # stdoutToServer and stderrToServer redirect stdout and stderr to eclipse console
+        pydevd.settrace('localhost', stdoutToServer = True, stderrToServer = True)
+    except ImportError:
+        sys.stderr.write("Error: " +
+            "You must add org.python.pydev.debug.pysrc to your PYTHONPATH.")
+        sys.exit(1)
+
 def listify(var, ignore_none = False):
     """Put var in list if it is not a list"""
     log('Listify: %s, %s' % (var, ignore_none))
@@ -64,6 +79,17 @@ def listify(var, ignore_none = False):
 
 def log(msg):
     plugin.log(msg, 'util')
+
+def filterDictionary(dict, keys):
+    filtered = {}
+    print dict
+    for key, value in dict.iteritems():
+        if key in keys:
+            filtered[key] = value
+    return filtered
+
+def getSetting(key):
+    return xbmcplugin.getSetting(PluginFactory.factory().handle, key)
 
 class SfTvClass(object):
     def __init__(self, *args, **kwargs):
