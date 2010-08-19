@@ -25,6 +25,9 @@ def loadUrl(url):
 def getJson(json):
     return simplejson.loads(json)
 
+def loadJson(url):
+    return getJson(loadUrl(url))
+
 def getXml(xml):
     return BeautifulStoneSoup(xml)
 
