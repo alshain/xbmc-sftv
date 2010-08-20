@@ -101,3 +101,8 @@ class SfTvClass(object):
 
     def _log(self, msg):
         self._plugin.log(msg, self.__class__.__name__)
+
+class SfTvClassStatic(object):
+    @classmethod
+    def _log(cls, msg):
+        PluginFactory.factory().log(msg, cls.__name__)

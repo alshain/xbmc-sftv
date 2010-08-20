@@ -2,10 +2,10 @@ import xbmcplugin, xbmcgui
 from resources.sftv import plugin, util, config
 from resources.sftv.server import factory as server_factory
 import urllib
-from resources.sftv.util import SfTvClass
-import re
+from resources.sftv.util import SfTvClass, SfTvClassStatic
+import re, sys
 
-class VideoFactory(SfTvClass):
+class VideoFactory(SfTvClassStatic):
     @classmethod
     def fromSegmentId(cls, segment_id, info):
         plugin.PluginFactory.factory().log('Loading from segmentid', 'media')
@@ -20,7 +20,7 @@ class VideoFactory(SfTvClass):
         date = ('1', '1', '1970')
         if 'time_published' in json:
             time_published = json['time_published']
-            date = VideoFactory.convertDate(time_published)
+            date = VideoFactory._convertDate(time_published)
         info['date'] = "%s.%s.%s" % date
         info['year'] = date[2]
 
@@ -34,20 +34,32 @@ class VideoFactory(SfTvClass):
 
         if 'title' not in info:
             info['title'] = json['description_title']
+        if 'desc' not in info:
+            info['desc'] = json['description_title']
         if 'plot' not in info:
             info['plot'] = json['description_title']
 
         #defaults
         final_info = info.copy()
-        final_info['label2'] = util.getSetting('label2Format') % info;
-        final_info['label'] = util.getSetting('titleFormat') % info;
-        final_info['title'] = util.getSetting('titleFormat') % info;
-        final_info['plot'] = util.getSetting('plotFormat') % info;
-
+        final_info['label'] = VideoFactory._format(info, util.getSetting('titleFormat'))
+        final_info['title'] = VideoFactory._format(info, util.getSetting('titleFormat'))
+        final_info['label2'] = VideoFactory._format(info, util.getSetting('label2Format'))
+        final_info['plot'] = VideoFactory._format(info, util.getSetting('plotFormat'))
         return (Factory.video(final_info), url)
+    @classmethod
+    def _format(cls, dict, format_string, fallback = "formatting error"):
+        try:
+            return format_string % dict
+        except KeyError, error:
+            cls._log('ERROR: Format string: %s - error message: %s' (format_string, error))
+            try:
+                return fallback % dict
+            except KeyError, error:
+                cls._log('ERROR: Fallback failed for %s' % (fallback, error))
+                return "formatting error (fallback)"
 
     @classmethod
-    def convertDate(cls, date):
+    def _convertDate(cls, date):
         """Return (d, m, Y)"""
         #%d.%m.%Y / 01.01.2009
         #2010-08-15 19:29:00
